@@ -1,0 +1,29 @@
+{
+    "doc_type": "english_language",
+    "fields": [
+      {
+        "name": "exam type",
+        "note": "英语考试类型，如 IELTS、TOEFL 等"
+      },
+      {
+        "name": "name",
+        "note": "考生姓名，核对是否与护照一致"
+      },
+      {
+        "name": "date of birth",
+        "note": "出生日期，核对是否与护照一致"
+      },
+      {
+        "name": "overall score",
+        "note": "总分"
+      },
+      {
+        "name": "sub-score",
+        "note": "各单项分数，如 listening、reading、writing、speaking"
+      },
+      {
+        "name": "exam date",
+        "note": "考试日期"
+      }
+    ]
+  }
