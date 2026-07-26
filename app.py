@@ -198,8 +198,8 @@ def run_batch_extraction(uploaded_files):
         return f"处理失败: {e}", "", "", None, None
 
 
-with gr.Blocks(title="Document Extractor") as demo:
-    gr.Markdown("## Document Extractor")
+with gr.Blocks(title="Agentic Document Intelligence") as demo:
+    gr.Markdown("## Agentic Document Intelligence")
 
     with gr.Tab("单文件处理"):
         gr.Markdown("上传一个 PDF，自动匹配模板并输出结果 txt。")
