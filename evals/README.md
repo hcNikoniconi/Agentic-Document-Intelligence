@@ -52,6 +52,16 @@ Run the current folder-level baseline:
 python evals/run_candidate_baseline.py --limit 2
 ```
 
+By default, outputs are saved locally under:
+
+```text
+evals/results/
+├── candidate_baseline_results.local.jsonl
+└── candidate_outputs/
+    ├── *_combined_result.txt
+    └── *_report.html
+```
+
 Compute candidate-level metrics:
 
 ```bash
