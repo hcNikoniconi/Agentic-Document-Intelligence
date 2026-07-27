@@ -22,6 +22,9 @@ output/
 outputs/
 results/
 logs/
+evals/private/
+evals/results/
+evals/*.local.jsonl
 ocr_cache/
 *.log
 *.db
