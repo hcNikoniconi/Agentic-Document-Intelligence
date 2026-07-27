@@ -26,6 +26,41 @@ evals/results/
 
 `candidate_outputs/` contains the same combined text files and HTML reports produced by the application workflow.
 
+## Manual server outputs
+
+If the model only runs on the server Gradio app, download the generated files manually into:
+
+```text
+evals/results/manual_candidate_outputs/
+├── candidate_001/
+│   ├── *_combined_result.txt
+│   └── *_report.html
+└── candidate_002/
+    ├── *_combined_result.txt
+    └── *_report.html
+```
+
+Then convert those files into benchmark JSONL:
+
+```bash
+python evals/import_manual_candidate_outputs.py \
+  --cases evals/private/candidates.v0.local.jsonl
+```
+
+This writes:
+
+```text
+evals/results/manual_candidate_results.local.jsonl
+```
+
+Run metrics against the imported manual results:
+
+```bash
+python evals/candidate_metrics.py \
+  --cases evals/private/candidates.v0.local.jsonl \
+  --results evals/results/manual_candidate_results.local.jsonl
+```
+
 ## Metrics
 
 After running the baseline:
@@ -33,4 +68,3 @@ After running the baseline:
 ```bash
 python evals/candidate_metrics.py --cases evals/private/candidates.v0.local.jsonl
 ```
-

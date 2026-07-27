@@ -16,7 +16,7 @@ def make_candidate_id(index: int) -> str:
 
 
 def parse_application_id(folder_name: str) -> str:
-    match = re.search(r"\bUG\d{6,}\b", folder_name, flags=re.IGNORECASE)
+    match = re.search(r"UG\d{6,}", folder_name, flags=re.IGNORECASE)
     return match.group(0).upper() if match else ""
 
 
@@ -72,4 +72,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

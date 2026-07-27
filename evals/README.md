@@ -67,3 +67,9 @@ Compute candidate-level metrics:
 ```bash
 python evals/candidate_metrics.py
 ```
+
+If results are downloaded manually from the server Gradio UI, put them under `evals/results/manual_candidate_outputs/` and import them with:
+
+```bash
+python evals/import_manual_candidate_outputs.py --cases evals/private/candidates.v0.local.jsonl
+```
