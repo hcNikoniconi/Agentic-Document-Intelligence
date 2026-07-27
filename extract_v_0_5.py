@@ -1,11 +1,19 @@
 import os
 import json
 import re
-from openai import OpenAI
+import sys
 import uuid
 import time
 
 from validator import save_validation_report_to_html
+
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+SRC_DIR = os.path.join(BASE_DIR, "src")
+if SRC_DIR not in sys.path:
+    sys.path.insert(0, SRC_DIR)
+
+from agentic_doc_intel.model_client import chat_completion_content
 
 
 # 线程限制（必须）
@@ -17,18 +25,6 @@ os.environ["MKL_NUM_THREADS"] = "1"
 from paddleocr import PPChatOCRv4Doc
 
 
-
-# LLM 配置
-LLM_CONFIG = {
-    "model_name": os.getenv("MODEL_NAME", "qwen3-8b"),
-    "base_url": os.getenv("MODEL_BASE_URL", "http://127.0.0.1:8000/v1"),
-    "api_key": os.getenv("MODEL_API_KEY", "EMPTY"),
-}
-
-client = OpenAI(
-    api_key=LLM_CONFIG["api_key"],
-    base_url=LLM_CONFIG["base_url"],
-)
 
 TEMPLATE_MAP = {
     "passport": "passport.json",
@@ -60,7 +56,6 @@ DOC_TYPE_ORDER = [
 ]
 
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 INPUT_ROOT = os.getenv("INPUT_ROOT", os.path.join(BASE_DIR, "data"))
 TEMPLATE_DIR = os.getenv("TEMPLATE_DIR", os.path.join(BASE_DIR, "templates"))
 OUTPUT_ROOT = os.getenv("OUTPUT_ROOT", os.path.join(BASE_DIR, "output"))
@@ -580,34 +575,31 @@ def call_llm_with_text(document_text, instruction):
         {instruction}
         """
 
-    response = client.chat.completions.create(
-    model=LLM_CONFIG["model_name"],
-    messages=[
-        {
-            "role": "system",
-            "content": (
-                "You are an information extraction engine. "
-                "Return ONLY one valid JSON object. "
-                "Do not output markdown. "
-                "Do not output explanations. "
-                "Do not output <think> tags."
-            ),
+    return chat_completion_content(
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "You are an information extraction engine. "
+                    "Return ONLY one valid JSON object. "
+                    "Do not output markdown. "
+                    "Do not output explanations. "
+                    "Do not output <think> tags."
+                ),
+            },
+            {
+                "role": "user",
+                "content": prompt + "\n\n/no_think",
+            },
+        ],
+        temperature=0,
+        max_tokens=1536,
+        extra_body={
+            "chat_template_kwargs": {
+                "enable_thinking": False
+            }
         },
-        {
-            "role": "user",
-            "content": prompt + "\n\n/no_think",
-        },
-    ],
-    temperature=0,
-    max_tokens=1536,
-    extra_body={
-        "chat_template_kwargs": {
-            "enable_thinking": False
-        }
-    },
-)
-    content = response.choices[0].message.content.strip()
-    return content
+    )
 
 def parse_llm_json(content, field_meta):
     raw = (content or "").strip()
@@ -1079,8 +1071,7 @@ def extract_one_file(input_file):
     """
 
             try:
-                seal_check_response = client.chat.completions.create(
-                    model=LLM_CONFIG["model_name"],
+                seal_check_raw = chat_completion_content(
                     messages=[
                         {
                             "role": "system",
@@ -1105,8 +1096,6 @@ def extract_one_file(input_file):
                         }
                     },
                 )
-
-                seal_check_raw = seal_check_response.choices[0].message.content.strip()
                 seal_check_raw = re.sub(
                     r"<think>.*?</think>",
                     "",

@@ -1,0 +1,3 @@
+{"id":"passport_example_001","file_path":"data/examples/passport_example_001.pdf","document_type":"passport","ground_truth":{"full_name":"SAMPLE APPLICANT","passport_number":"E12345678","date_of_birth":"2000-01-01"}}
+{"id":"application_example_001","file_path":"data/examples/application_example_001.pdf","document_type":"application_form","ground_truth":{"application_id":"APP000001","full_name":"SAMPLE APPLICANT"}}
+

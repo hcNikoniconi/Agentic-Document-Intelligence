@@ -28,6 +28,22 @@ This keeps the code path shared while allowing local deployment and API-based us
 
 The application defaults to `127.0.0.1` so the UI is not exposed publicly by accident. Use an SSH tunnel when the application or model is running on a remote server.
 
+## Project structure
+
+```text
+.
+├── app.py                         # Gradio UI
+├── extract_v_0_5.py               # Current extraction pipeline
+├── validator.py                   # Cross-document validation and reports
+├── src/agentic_doc_intel/         # Shared reusable application code
+├── templates/                     # Document extraction schemas
+├── evals/                         # De-identified evaluation cases
+├── docs/                          # Architecture notes
+└── scripts/                       # Repeatable command-line workflows
+```
+
+See `docs/project-structure.md` for the reasoning behind this layout.
+
 ## Model configuration examples
 
 Self-hosted vLLM on the same machine:
@@ -36,6 +52,7 @@ Self-hosted vLLM on the same machine:
 MODEL_BASE_URL=http://127.0.0.1:8000/v1
 MODEL_API_KEY=replace-me
 MODEL_NAME=qwen3-8b
+MODEL_TIMEOUT_SECONDS=120
 ```
 
 Remote server accessed through an SSH tunnel:
@@ -44,6 +61,7 @@ Remote server accessed through an SSH tunnel:
 MODEL_BASE_URL=http://127.0.0.1:8000/v1
 MODEL_API_KEY=replace-me
 MODEL_NAME=/path/to/server/model
+MODEL_TIMEOUT_SECONDS=120
 ```
 
 External OpenAI-compatible API:
@@ -52,6 +70,7 @@ External OpenAI-compatible API:
 MODEL_BASE_URL=https://example.com/v1
 MODEL_API_KEY=replace-me
 MODEL_NAME=provider-model-name
+MODEL_TIMEOUT_SECONDS=120
 ```
 
 ## Repository policy
