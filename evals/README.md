@@ -12,7 +12,7 @@ OCR -> extraction -> validation
 OCR -> extraction -> validation -> targeted retry
 ```
 
-## Local benchmark flow
+## PDF-level local benchmark flow
 
 Build a private manifest from local applicant folders:
 
@@ -35,3 +35,25 @@ python evals/metrics.py
 ```
 
 Everything under `evals/private/` and `evals/results/` is ignored by Git.
+
+## Candidate-level benchmark flow
+
+This is the preferred benchmark for the current application because the real workflow processes one applicant folder and produces one combined result.
+
+Build a private candidate manifest:
+
+```bash
+python scripts/build_private_candidate_manifest.py /path/to/documents-export-2026-01-30
+```
+
+Run the current folder-level baseline:
+
+```bash
+python evals/run_candidate_baseline.py --limit 2
+```
+
+Compute candidate-level metrics:
+
+```bash
+python evals/candidate_metrics.py
+```
