@@ -1,0 +1,55 @@
+{
+  "doc_type": "application_form",
+  "fields": [
+    {
+      "name": "application id",
+      "section": "application form header",
+      "note": "Extract the value after 'Application ID:', for example 'APP000001'."
+    },
+    {
+      "name": "name",
+      "section": "application form section 2.1",
+      "note": "申请者的名字"
+    },
+    {
+      "name": "date of birth",
+      "section": "application form section 2.1"
+    },
+    {
+      "name": "gender",
+      "section": "application form section 2.1"
+    },
+    {
+      "name": "nationality",
+      "section": "application form section 2.1"
+    },
+    {
+      "name": "passport number",
+      "section": "application form section 2.1"
+    },
+    {
+      "name": "military, or a diplomatic passport?",
+      "section": "application form section 2.1"
+    },
+    {
+      "name": "father's nationality",
+      "section": "application form section 2.1"
+    },
+    {
+      "name": "mother's nationality",
+      "section": "application form section 2.1"
+    },
+    {
+      "name": "Are you currently studying or living in Mainland China?",
+      "section": "application form section 2.2"
+    },
+    {
+      "name": "Have you ever been convicted of a crime?",
+      "section": "application form section 2.4"
+    },
+    {
+      "name": "work experience",
+      "section": "application form section 5.1.1"
+    }
+  ]
+}

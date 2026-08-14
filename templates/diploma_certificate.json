@@ -1,0 +1,25 @@
+{
+    "doc_type": "diploma_certificate",
+    "fields": [
+      {
+        "name": "school name",
+        "note": "学校名称，核对是否与成绩单一致"
+      },
+      {
+        "name": "student name",
+        "note": "学生姓名，核对是否与护照一致"
+      },
+      {
+        "name": "graduation year",
+        "note": "毕业年份"
+      },
+      {
+        "name": "school stamp present",
+        "note": "是否含有学校盖章"
+      },
+      {
+        "name": "signature present",
+        "note": "是否含有签字"
+      }
+    ]
+  }

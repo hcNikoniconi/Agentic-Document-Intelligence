@@ -1,0 +1,97 @@
+{
+  "doc_type": "transcript",
+  "fields": [
+    {
+      "name": "student name",
+      "note": "成绩单上的学生姓名。请尽量完整提取，与护照姓名保持可比较格式。"
+    },
+    {
+      "name": "date of birth",
+      "note": "成绩单上的出生日期。如果没有出现，回答unknown。"
+    },
+    {
+      "name": "transcript language",
+      "note": "判断成绩单主要语言是否为英文。只能回答English、Not English或Unknown。"
+    },
+    {
+      "name": "official document",
+      "note": "判断这是否像正式成绩单。需要结合学校名称、成绩表、盖章、签字、文件格式等判断。只能回答Yes、No或Unknown。"
+    },
+    {
+      "name": "school stamp present",
+      "note": "判断成绩单中是否能看到学校盖章、印章或官方章。只能回答Yes、No或Unknown。"
+    },
+    {
+      "name": "signature present",
+      "note": "判断成绩单中是否能看到签名、负责人签字或授权签名。只能回答Yes、No或Unknown。"
+    },
+    {
+      "name": "institution name",
+      "note": "学校名称。"
+    },
+    {
+      "name": "institution country",
+      "note": "学校所在国家。"
+    },
+    {
+      "name": "start year",
+      "note": "入学年份或成绩单覆盖的开始年份。"
+    },
+    {
+      "name": "end or expected end year",
+      "note": "毕业年份、预计毕业年份，或成绩单覆盖的结束年份。"
+    },
+    {
+      "name": "translation",
+      "note": "如果成绩单不是英文，判断是否有英文翻译件。如果成绩单本身是英文，回答Yes。如果无法判断，回答Unknown。"
+    },
+    {
+      "name": "education level",
+      "note": "学历水平，例如High School、University、Foundation、Vocational High School等。"
+    },
+    {
+      "name": "qualification type",
+      "note": "课程类型，例如National Exam / Ijazah、A-Level、IB、AP、High School Diploma、Mixed Curriculum等。如果可以判断，直接回答课程类型；如果无法判断，回答Unknown。"
+    },
+    {
+      "name": "overall average",
+      "note": "总平均成绩。如果成绩单直接给出总平均分，提取该值；如果没有明确总平均分，但可以根据每年或每学期平均成绩计算，请给出估算值并注明calculated；如果无法判断，回答unknown。"
+    },
+    {
+      "name": "each year average",
+      "note": "每一年的平均成绩。请按年份或年级列出，例如Grade 10: 82.3; Grade 11: 83.5; Grade 12: 84.1。如果只有Semester GPA，也请按原文列出。无法判断则回答unknown。"
+    },
+    {
+      "name": "math score",
+      "note": "数学成绩。包括Math、Mathematics、Further Mathematics等相关科目。如果有多个学期或年份，请保留多个分数，例如81-88或Grade 10: 81; Grade 11: 88。无法判断则回答unknown。"
+    },
+    {
+      "name": "physics score",
+      "note": "物理成绩。包括Physics或相关物理科目。如果有多个学期或年份，请保留多个分数。无法判断则回答unknown。"
+    },
+    {
+      "name": "english score",
+      "note": "英语科目成绩。包括English、English Language等。如果有多个学期或年份，请保留多个分数。无法判断则回答unknown。"
+    },
+    {
+      "name": "grading scale",
+      "note": "成绩计分规则，例如百分制、等级制、GPA制、4.0 scale、100-point scale等。"
+    },
+    {
+      "name": "passing grade",
+      "note": "及格线或最低通过分数。如果成绩单没有明确写出，回答unknown。"
+    },
+    {
+      "name": "pass status",
+      "note": "判断是否所有可见科目都及格。需要结合passing grade、成绩分布、等级说明判断。只能回答Yes、No或Unknown。如果发现任何科目不及格，回答No。"
+    },
+    {
+      "name": "grade",
+      "note": "保留原始成绩摘要，包括高中每一年或每学期平均成绩、总平均成绩、数学成绩、物理成绩、英语成绩和其他主要科目成绩。"
+    },
+    {
+      "name": "validity check",
+      "note": "兼容旧字段。按顺序回答三个判断：成绩单是否完整清晰、是否包含学校名称和正式信息、学生信息是否可用于和护照对比。格式为Yes/No/Unknown, Yes/No/Unknown, Yes/No/Unknown。"
+    }
+  ]
+}

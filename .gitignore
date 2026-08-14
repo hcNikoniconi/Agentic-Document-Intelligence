@@ -1,0 +1,54 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Private documents, generated files, and caches
+data/
+datasets/
+uploads/
+output/
+outputs/
+results/
+logs/
+evals/private/
+evals/results/
+evals/*.local.jsonl
+ocr_cache/
+*.log
+*.db
+*.sqlite*
+*_ocr.txt
+
+# Model weights
+models/
+checkpoints/
+weights/
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.gguf
+*.onnx
+
+# Local test artifacts containing document data
+test.json
+vehicle_certificate-*
+
+# Frontend and editor artifacts
+node_modules/
+dist/
+.DS_Store
+.idea/
+.vscode/

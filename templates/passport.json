@@ -1,0 +1,13 @@
+{
+    "doc_type": "passport",
+    "fields": [
+      "passport type",
+      "place of birth",
+      "name",
+      "date of birth",
+      "gender",
+      "nationality",
+      "passport number",
+      "date of expiry"
+    ]
+  }
