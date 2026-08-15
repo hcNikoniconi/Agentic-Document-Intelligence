@@ -18,9 +18,7 @@ if str(SRC) not in sys.path:
 from agentic_doc_intel.pipelines.vlm_text_agent import run_candidate_folder  # noqa: E402
 
 
-DEFAULT_INPUT_ROOT = Path(
-    ROOT.parent / "data" / "documents-export-2026-01-30"
-)
+DEFAULT_INPUT_ROOT = ROOT / "data" / "documents-export-2026-01-30"
 DEFAULT_ENV_FILE = ROOT / ".env"
 
 

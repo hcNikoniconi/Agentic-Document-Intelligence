@@ -46,8 +46,8 @@ from agentic_doc_intel.template_registry import (
 from agentic_doc_intel.verification.policy import apply_verification_policy
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[4]
-DEFAULT_OUTPUT_ROOT = PROJECT_ROOT / "vlm-text-agent" / "output" / "v2_vlm_text_agent"
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+DEFAULT_OUTPUT_ROOT = PROJECT_ROOT / "output" / "v2_vlm_text_agent"
 SUPPORTED_SUFFIXES = {".pdf", ".png", ".jpg", ".jpeg", ".webp"}
 
 

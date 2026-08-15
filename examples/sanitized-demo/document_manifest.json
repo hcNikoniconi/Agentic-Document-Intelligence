@@ -1,0 +1,68 @@
+[
+  {
+    "candidate": "DEMO_APPLICANT",
+    "source_file": "demo/passport_demo.pdf",
+    "file_name": "passport_demo.pdf",
+    "suffix": ".pdf",
+    "template_doc_type": "passport",
+    "routed_doc_type": "passport",
+    "text_layer_stats": {
+      "page_count": 2,
+      "text_chars": 320,
+      "word_count": 52,
+      "table_signal": 0
+    },
+    "reading_decision": {
+      "primary_tool": "vlm_page_reader",
+      "doc_type": "passport",
+      "selected_pages": [1, 2],
+      "reason": "Passport layout is visual and identity fields should be read from rendered pages."
+    },
+    "status": "planned",
+    "error": null
+  },
+  {
+    "candidate": "DEMO_APPLICANT",
+    "source_file": "demo/application_form_demo.pdf",
+    "file_name": "application_form_demo.pdf",
+    "suffix": ".pdf",
+    "template_doc_type": "application_form",
+    "routed_doc_type": "application_form",
+    "text_layer_stats": {
+      "page_count": 7,
+      "text_chars": 9800,
+      "word_count": 1650,
+      "table_signal": 4
+    },
+    "reading_decision": {
+      "primary_tool": "pdf_text_layer",
+      "doc_type": "application_form",
+      "selected_pages": ["text_layer"],
+      "reason": "Application form contains enough native PDF text for low-cost extraction."
+    },
+    "status": "planned",
+    "error": null
+  },
+  {
+    "candidate": "DEMO_APPLICANT",
+    "source_file": "demo/transcript_demo.pdf",
+    "file_name": "transcript_demo.pdf",
+    "suffix": ".pdf",
+    "template_doc_type": "transcript",
+    "routed_doc_type": "transcript",
+    "text_layer_stats": {
+      "page_count": 4,
+      "text_chars": 2100,
+      "word_count": 360,
+      "table_signal": 8
+    },
+    "reading_decision": {
+      "primary_tool": "vlm_page_reader",
+      "doc_type": "transcript",
+      "selected_pages": [1, 2, 3, 4],
+      "reason": "Transcript has tables and stamps, so visual reading is preferred."
+    },
+    "status": "planned",
+    "error": null
+  }
+]

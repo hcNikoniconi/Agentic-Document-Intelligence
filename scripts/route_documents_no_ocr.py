@@ -21,7 +21,7 @@ from agentic_doc_intel.routing.reading_policy import (  # noqa: E402
 )
 
 
-PROJECT_ROOT = ROOT.parent
+PROJECT_ROOT = ROOT
 DEFAULT_INPUT_ROOT = PROJECT_ROOT / "data" / "documents-export-2026-01-30"
 DEFAULT_OUTPUT = PROJECT_ROOT / "data" / "routing-reports" / "no_ocr_routing_report.md"
 SUPPORTED_SUFFIXES = {".pdf", ".png", ".jpg", ".jpeg", ".webp"}

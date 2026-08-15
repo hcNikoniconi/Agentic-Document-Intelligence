@@ -48,6 +48,12 @@ Implemented:
 - token-safe batch planner
 - human-readable summary report
 
+See a fully synthetic example output in:
+
+```text
+examples/sanitized-demo/
+```
+
 Not yet the focus:
 
 - public web deployment
@@ -77,6 +83,7 @@ Not yet the focus:
 ├── templates/                     # extraction schemas for supported document types
 ├── scripts/                       # repeatable local workflows
 ├── evals/                         # evaluation helpers and sanitized examples
+├── examples/                      # sanitized demo outputs
 ├── docs/                          # design notes
 ├── requirements.txt
 └── .env.example
@@ -180,6 +187,8 @@ The next milestones are:
 3. compare full-document VLM vs selective reading on cost and accuracy;
 4. add a FastAPI backend;
 5. build a cleaner frontend for upload, model selection, and report review.
+
+For the system design, see [docs/architecture.md](docs/architecture.md).
 
 ## Resume framing
 

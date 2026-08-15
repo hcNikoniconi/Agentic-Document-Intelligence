@@ -1,0 +1,59 @@
+{
+  "missing_fields": [],
+  "unsupported_fields": [],
+  "conflicts": [],
+  "unknown_fields": [
+    {
+      "document_type": "passport",
+      "field": "gender",
+      "label": "passport.gender",
+      "reason": "The sanitized demo passport does not include this visible field."
+    },
+    {
+      "document_type": "english_language",
+      "field": "ielts/toefl/pte score",
+      "label": "english_language.ielts/toefl/pte score",
+      "reason": "No English-language test file is present in the demo packet."
+    }
+  ],
+  "acceptable_unknowns": [
+    {
+      "document_type": "english_language",
+      "field": "ielts/toefl/pte score",
+      "label": "english_language.ielts/toefl/pte score",
+      "reason": "No English test document was provided."
+    }
+  ],
+  "review_unknowns": [],
+  "weak_supported_fields": [
+    {
+      "document_type": "application_form",
+      "field": "Have you ever been convicted of a crime?",
+      "value": "No",
+      "reason": "Boolean value is accepted but would be stronger with a direct quote in production evidence."
+    }
+  ],
+  "unsupported_needing_review": [],
+  "hard_conflicts": [],
+  "soft_conflicts": [],
+  "certificate_identity_checks": [],
+  "certificate_identity_mismatches": [],
+  "source_consistency_checks": [
+    {
+      "document_type": "transcript",
+      "left_source_file": "demo/transcript_demo.pdf",
+      "right_source_file": "demo/application_form_demo.pdf",
+      "compatible": true,
+      "shared_signals": [
+        {
+          "field": "name",
+          "left": "Alex Chen",
+          "right": "Alex Chen"
+        }
+      ],
+      "reason": "The transcript and application form refer to the same applicant name."
+    }
+  ],
+  "needs_retry": false,
+  "needs_human_review": false
+}

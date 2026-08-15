@@ -1,0 +1,54 @@
+#passport
+passport type: unknown
+place of birth: unknown
+name: ALEX CHEN
+date of birth: 2007-04-18
+gender: unknown
+nationality: unknown
+passport number: P00012345
+date of expiry: unknown
+
+#application_form
+application id: APP-DEMO-001
+name: Alex Chen
+date of birth: 2007-04-18
+gender: unknown
+nationality: unknown
+passport number: P00012345
+military, or a diplomatic passport?: No
+father's nationality: unknown
+mother's nationality: unknown
+Are you currently studying or living in Mainland China?: No
+Have you ever been convicted of a crime?: No
+work experience: unknown
+
+#transcript
+student name: Alex Chen
+date of birth: unknown
+transcript language: English
+official document: Yes
+school stamp present: Yes
+signature present: Yes
+institution name: Demo International High School
+institution country: Demo Country
+start year: 2023
+end or expected end year: 2025
+translation: Yes
+education level: High School
+qualification type: High School Diploma
+overall average: 92.1
+each year average: Grade 11: 90.5; Grade 12: 93.7
+math score: Grade 11: 92; Grade 12: 94
+physics score: Grade 11: 90; Grade 12: 93
+english score: Grade 11: 89; Grade 12: 91
+grading scale: 100-point scale
+passing grade: 60
+pass status: Yes
+grade: Math 92/94; English 89/91; Physics 90/93; Overall average 92.1
+validity check: Yes, Yes, Yes
+
+#diploma_certificate
+未提供或未识别到该类文件
+
+#english_language
+未提供或未识别到该类文件
