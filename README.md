@@ -1,126 +1,186 @@
 # Agentic Document Intelligence
 
-Agentic Document Intelligence is a multi-stage document extraction and
-verification project for admissions-related applicant files. The project starts
-with an OCR + text LLM baseline, then evolves toward VLM direct extraction and a
-VLM + text-model verifier/aggregator.
+Agentic Document Intelligence is a candidate-level document understanding system for admissions-style application files. It reads a folder of applicant documents, extracts field-level evidence, aggregates the evidence into a structured candidate profile, and verifies missing fields, conflicts, and source consistency.
 
-The goal is not just to extract fields from PDFs. The goal is to compare
-different document intelligence pipelines under the same candidate-level
-benchmark.
+This repository now focuses on the **v2 MVP**: a VLM + text-model agent workflow. Earlier OCR and direct-VLM experiments are treated as local baselines, not the main product path.
 
-## Pipeline versions
-
-### v0: OCR + text LLM baseline
+## What the system does
 
 ```text
-Applicant folder
-  -> OCR and document classification
-  -> text LLM field extraction
-  -> cross-document validation
-  -> combined candidate result
-  -> benchmark accuracy
+Candidate folder
+  -> scan all files
+  -> route each file/page to the right reader
+  -> extract field-level evidence with source and page references
+  -> aggregate evidence into one candidate result
+  -> verify conflicts, missing fields, weak evidence, and source consistency
+  -> generate machine-readable outputs and a human-readable report
 ```
 
-This is the current working baseline. It is still useful because it gives the
-project a measurable starting point.
+The project is designed around a practical problem: real application packets contain passports, application forms, transcripts, certificates, recommendation letters, personal statements, and miscellaneous PDFs. A single one-shot prompt is fragile, expensive, and hard to debug. This system keeps intermediate evidence and verification traces so failures can be located and improved.
 
-### v1: VLM direct extraction
+## Core idea
 
-```text
-Applicant folder
-  -> original PDF pages / images
-  -> multimodal model extraction
-  -> same combined candidate result format
-  -> benchmark accuracy
-```
+Instead of asking a model to directly produce the final answer from all documents, the pipeline separates the work:
 
-This removes OCR as the first bottleneck and tests whether a VLM can better
-understand layout-heavy documents such as transcripts and diplomas.
+| Stage | Purpose |
+|---|---|
+| Document routing | Decide which files/pages are likely useful |
+| Evidence extraction | Read documents and emit field-level evidence |
+| Aggregation | Merge evidence across files into one candidate result |
+| Verification | Detect conflicts, missing values, unsupported fields, and source mismatch |
+| Reporting | Produce JSON/JSONL traces plus a readable summary |
 
-### v2: VLM + text verifier/aggregator
+This makes the system easier to evaluate and iterate than a plain OCR/VLM demo.
 
-```text
-Applicant folder
-  -> VLM page/document evidence extraction
-  -> text model aggregation and normalization
-  -> verifier for conflicts, missing fields, and unknown values
-  -> final candidate-level result
-  -> benchmark accuracy
-```
+## Current MVP status
 
-The model runs separately from this repository. The same application supports two model access modes through `MODEL_BASE_URL`:
+Implemented:
 
-- Local or self-hosted model service, such as vLLM running on the same machine or a private server.
-- External API service, as long as it exposes an OpenAI-compatible chat completions endpoint.
+- candidate-folder processing
+- PDF/image rendering for VLM calls
+- text-layer reading for text-heavy PDFs
+- VLM page reader
+- field-level evidence records
+- text-model aggregation
+- deterministic fallback aggregation
+- schema repair for model output drift
+- verification policy for conflicts, unknown values, weak support, and source consistency
+- token-safe batch planner
+- human-readable summary report
 
-This keeps the code path shared while allowing local deployment and API-based usage to evolve in parallel.
+Not yet the focus:
 
-## Local setup
+- public web deployment
+- polished frontend/backend rewrite
+- large-scale batch runs
+- cost-heavy benchmark runs
+- user account/authentication system
 
-1. Create and activate a Python environment.
-2. Install `requirements.txt`.
-3. Copy `.env.example` to `.env` and provide local values without committing the file.
-4. Export the variables from `.env`, then run `python app.py`.
-
-The application defaults to `127.0.0.1` so the UI is not exposed publicly by accident. Use an SSH tunnel when the application or model is running on a remote server.
-
-## Project structure
+## Repository structure
 
 ```text
 .
-├── app.py                         # Gradio UI
-├── extract_v_0_5.py               # Working v0 OCR + text LLM baseline
-├── validator.py                   # Cross-document validation and reports
+├── app.py                         # Gradio entry point
+├── app_v2_agent.py                # v2 MVP UI/runner entry point
 ├── src/agentic_doc_intel/
-│   ├── pipelines/                 # v0/v1/v2 pipeline entry points
-│   ├── schemas/                   # Shared result shapes
-│   ├── evaluators/                # Future shared evaluation helpers
-│   └── model_client.py            # OpenAI-compatible model access
-├── templates/                     # Document extraction schemas
-├── evals/                         # De-identified evaluation cases
-├── docs/                          # Architecture notes
-└── scripts/                       # Repeatable command-line workflows
+│   ├── pipelines/
+│   │   ├── vlm_direct.py          # direct VLM pipeline utilities
+│   │   └── vlm_text_agent.py      # active v2 agent pipeline
+│   ├── routing/
+│   │   └── reading_policy.py      # no-OCR reader/page routing policy
+│   ├── verification/
+│   │   └── policy.py              # conflict/unknown/source checks
+│   ├── schemas/                   # shared candidate result schema
+│   ├── document_rendering.py      # PDF/image rendering helpers
+│   ├── model_client.py            # OpenAI-compatible model client
+│   └── template_registry.py       # document schema loading
+├── templates/                     # extraction schemas for supported document types
+├── scripts/                       # repeatable local workflows
+├── evals/                         # evaluation helpers and sanitized examples
+├── docs/                          # design notes
+├── requirements.txt
+└── .env.example
 ```
 
-See `docs/project-structure.md` for the reasoning behind this layout.
-See `docs/roadmap.md` for the v0 -> v1 -> v2 project plan.
-See `docs/model-providers.md` for the model-provider strategy.
+## Private-data policy
 
-## Model configuration examples
+Only code, templates, scripts, docs, and sanitized examples belong in GitHub.
 
-Self-hosted vLLM on the same machine:
+Do not commit:
+
+- API keys or `.env`
+- candidate documents
+- generated extraction results
+- uploads
+- local benchmark outputs
+- model weights
+- logs or caches
+
+The `.gitignore` is configured to keep these local.
+
+## Setup
+
+Create an environment and install dependencies:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+Create local configuration:
+
+```bash
+cp .env.example .env
+```
+
+Then fill in your local model endpoint:
 
 ```dotenv
-MODEL_BASE_URL=http://127.0.0.1:8000/v1
-MODEL_API_KEY=replace-me
-MODEL_NAME=qwen3-8b
-MODEL_TIMEOUT_SECONDS=120
+MODEL_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+MODEL_API_KEY=your-local-key
+MODEL_NAME=qwen3.7-flash
 ```
 
-Remote server accessed through an SSH tunnel:
+The model service only needs to be OpenAI-compatible. It can be:
 
-```dotenv
-MODEL_BASE_URL=http://127.0.0.1:8000/v1
-MODEL_API_KEY=replace-me
-MODEL_NAME=/path/to/server/model
-MODEL_TIMEOUT_SECONDS=120
+- a local/self-hosted vLLM server;
+- a remote server accessed through SSH tunnel;
+- an external provider such as DashScope compatible mode.
+
+## Run one candidate
+
+```bash
+python scripts/run_v2_candidate.py "candidate folder name or path"
 ```
 
-External OpenAI-compatible API:
+Outputs are written locally under:
 
-```dotenv
-MODEL_BASE_URL=https://example.com/v1
-MODEL_API_KEY=replace-me
-MODEL_NAME=provider-model-name
-MODEL_TIMEOUT_SECONDS=120
+```text
+output/v2_vlm_text_agent/<candidate_name>/
 ```
 
-## Repository policy
+Typical output files:
 
-Source code and redacted templates belong in Git. Model weights, uploaded documents, OCR output, reports, logs, credentials, and real applicant data do not. The included `.gitignore` enforces these boundaries for new files.
+```text
+document_manifest.json
+document_evidence.jsonl
+candidate_result.json
+verification_report.json
+summary_report.md
+trace.json
+raw_model_outputs.json
+aggregator_raw_output.json
+```
 
-## Next milestone
+## Token-safe batch planning
 
-Freeze v0 as the OCR + text LLM baseline, then implement v1 VLM direct
-extraction while keeping the same final output format and benchmark.
+The batch runner is safe by default:
+
+```bash
+python scripts/run_v2_batch.py
+```
+
+Without `--run`, it only creates a local plan and does not call model APIs.
+
+To actually run model calls:
+
+```bash
+python scripts/run_v2_batch.py --run
+```
+
+Use this only when you are ready to spend API tokens.
+
+## Project direction
+
+The next milestones are:
+
+1. improve README/demo packaging with a sanitized example;
+2. add a small end-to-end evaluation set;
+3. compare full-document VLM vs selective reading on cost and accuracy;
+4. add a FastAPI backend;
+5. build a cleaner frontend for upload, model selection, and report review.
+
+## Resume framing
+
+> Built an Agentic Document Intelligence MVP that processes candidate application packets end-to-end: document routing, VLM/text evidence extraction, cross-document aggregation, conflict verification, source consistency checks, and token-safe batch planning.

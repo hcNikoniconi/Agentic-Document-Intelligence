@@ -1,111 +1,124 @@
-# Project structure
+# Project Structure
 
-Agentic Document Intelligence is organized around pipeline comparison. Each
-layer owns one responsibility, so OCR, VLM, Agent verification, evaluation, API,
-and deployment work can evolve without turning the project into one giant
-script.
+This repository is intentionally centered on the current v2 MVP instead of exposing every historical experiment.
 
-## Current layout
+The active product kernel is:
+
+```text
+candidate documents
+  -> document routing
+  -> evidence extraction
+  -> evidence aggregation
+  -> verification
+  -> candidate report
+```
+
+## Layout
 
 ```text
 .
 ├── app.py
-├── extract_v_0_5.py
-├── validator.py
+├── app_v2_agent.py
 ├── src/
 │   └── agentic_doc_intel/
 │       ├── pipelines/
-│       │   ├── ocr_text_baseline.py
 │       │   ├── vlm_direct.py
 │       │   └── vlm_text_agent.py
+│       ├── routing/
+│       │   └── reading_policy.py
+│       ├── verification/
+│       │   └── policy.py
 │       ├── schemas/
 │       │   └── candidate_result.py
-│       ├── evaluators/
-│       └── model_client.py
+│       ├── document_rendering.py
+│       ├── model_client.py
+│       └── template_registry.py
 ├── templates/
+├── scripts/
 ├── evals/
 ├── docs/
-└── scripts/
+└── requirements.txt
 ```
 
-## Why this structure exists
+## Responsibilities
 
-`app.py` is the user interface layer. It should handle uploads, button clicks,
-preview text, and downloadable files. It should not know model provider details.
+### `app.py` and `app_v2_agent.py`
 
-`extract_v_0_5.py` is the current working v0 baseline. It owns OCR, template
-matching, prompt construction, parsing, and saving results. It is intentionally
-kept working instead of being rewritten immediately.
+UI and local demo entry points. These files should stay thin. They can collect inputs, display status, and expose downloadable outputs, but core extraction logic should live under `src/`.
 
-`src/agentic_doc_intel/pipelines/` contains versioned pipeline entry points:
+### `src/agentic_doc_intel/pipelines/vlm_text_agent.py`
 
-- `ocr_text_baseline.py`: wraps the current v0 OCR + text LLM workflow.
-- `vlm_direct.py`: planned v1 pipeline for direct multimodal extraction.
-- `vlm_text_agent.py`: planned v2 pipeline for VLM extraction plus text-model
-  verification and aggregation.
-
-This makes the project readable as an experiment:
+The active v2 pipeline. It owns the candidate-level flow:
 
 ```text
-v0 OCR baseline
-vs
-v1 VLM direct extraction
-vs
-v2 VLM + text verifier
+scan folder
+  -> build document manifest
+  -> run readers
+  -> collect evidence
+  -> aggregate result
+  -> verify result
+  -> write outputs
 ```
 
-`validator.py` owns cross-document checks and report generation. Validation
-should stay separate because it will later become the verifier layer of the
-Agent workflow.
+This is the main file to improve when adding product intelligence.
 
-`src/agentic_doc_intel/model_client.py` owns all OpenAI-compatible model access.
-Local vLLM, remote vLLM, and external APIs should all be switched through
-environment variables rather than business logic changes.
+### `src/agentic_doc_intel/routing/reading_policy.py`
 
-`src/agentic_doc_intel/schemas/` contains shared result shapes. The key idea is
-that every pipeline should eventually output the same candidate-level prediction
-format, so the benchmark can compare them fairly.
+Chooses how each file/page should be read. The current policy avoids traditional OCR as the main path and uses:
 
-`src/agentic_doc_intel/evaluators/` is reserved for reusable evaluation logic
-that does not belong to one specific benchmark script.
+- PDF text layer for text-heavy documents;
+- VLM page reader for visual/layout-heavy documents;
+- human review for unsupported or low-confidence cases.
 
-`templates/` contains document schemas. These are product data, not model code.
+### `src/agentic_doc_intel/verification/policy.py`
 
-`evals/` contains benchmark cases and metrics. Real applicant documents,
-private ground truth, and generated reports should not be committed.
+Encodes deterministic verification checks that should not depend entirely on model judgment:
 
-`docs/` explains architecture and decisions. If a future reader cannot
-understand why the project is shaped this way, the project will become hard to
-maintain.
+- hard conflicts;
+- soft conflicts;
+- acceptable unknowns;
+- review-needed unknowns;
+- weakly supported fields;
+- certificate identity consistency;
+- source consistency between complementary files.
 
-`scripts/` is reserved for repeatable command-line tasks such as running
-pipelines, importing manual results, creating reports, or launching local
-services.
+The point is not to replace the model with rules. The point is to make model outputs auditable.
 
-## Rule of thumb
+### `src/agentic_doc_intel/model_client.py`
 
-When adding a new feature, ask: "Which layer owns this?"
+The model access layer. It should hide whether the model is local vLLM, remote vLLM, or an external OpenAI-compatible API.
 
-- UI behavior goes in `app.py`.
-- Extraction logic goes in the corresponding versioned pipeline.
-- Model provider setup goes in `model_client.py`.
-- Shared output contracts go in `schemas/`.
-- Validation and consistency checks go in `validator.py`.
-- Test cases and metrics go in `evals/`.
-- Human-readable design notes go in `docs/`.
+### `templates/`
 
-## Why this matters for the resume
+Document schemas. These define what fields the system expects for passports, application forms, transcripts, certificates, and English-language documents.
 
-A weaker project structure says:
+### `scripts/`
 
-```text
-I wrote an OCR extraction script.
-```
+Repeatable local workflows:
 
-A stronger project structure says:
+- run one candidate;
+- build summary reports;
+- create token-safe batch plans;
+- inspect routing decisions;
+- build private manifests without committing private data.
 
-```text
-I built a benchmarked document intelligence system and compared multiple
-pipelines: OCR+LLM, VLM direct extraction, and VLM+LLM verification.
-```
+### `evals/`
 
+Evaluation helpers and sanitized examples. Real candidate files, manual outputs, and private benchmark results should stay local and ignored by Git.
+
+## Design rule
+
+When adding a feature, ask which layer owns it:
+
+| Feature | Location |
+|---|---|
+| UI behavior | `app.py` / `app_v2_agent.py` |
+| candidate pipeline | `pipelines/vlm_text_agent.py` |
+| page/file choice | `routing/reading_policy.py` |
+| model call | `model_client.py` |
+| output contract | `schemas/` |
+| conflict/missing checks | `verification/policy.py` |
+| repeatable command | `scripts/` |
+| explanation/design note | `docs/` |
+
+This keeps the project from collapsing into one giant demo script.

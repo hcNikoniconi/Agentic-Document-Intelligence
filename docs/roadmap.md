@@ -1,173 +1,140 @@
-# Roadmap: from OCR baseline to multimodal document intelligence
+# Roadmap
 
-This project should not stay as an OCR-only extraction demo. The OCR pipeline is
-useful, but mainly as a baseline. The higher-value direction is to compare
-several document intelligence pipelines under one benchmark.
+The project has reached a v2 MVP: one candidate folder can be processed end-to-end through document routing, evidence extraction, aggregation, verification, and report generation.
 
-## Version plan
+The next goal is not to keep adding random features. The next goal is to make the MVP easy to understand, evaluate, and eventually productize.
 
-### v0: OCR + text LLM baseline
+## Current: v2 MVP
 
 ```text
-Applicant folder
-  -> OCR / text extraction
-  -> text LLM field extraction
-  -> combined candidate result
-  -> benchmark accuracy
+Candidate folder
+  -> scan all files
+  -> choose reader per file/page
+  -> extract field-level evidence
+  -> aggregate candidate result
+  -> verify conflicts and source consistency
+  -> write report
 ```
 
-Purpose:
-
-- Establish the first working end-to-end baseline.
-- Produce a measurable field-level accuracy number.
-- Keep the old workflow available for comparison.
-
-Current status:
-
-- Implemented by `extract_v_0_5.py`.
-- Wrapped by `src/agentic_doc_intel/pipelines/ocr_text_baseline.py`.
-- Current manual benchmark baseline: `0.761` field accuracy on 7 candidates.
-
-### v1: VLM direct extraction
+Implemented outputs:
 
 ```text
-Applicant folder
-  -> render PDF/pages or load images
-  -> multimodal model reads document pages directly
-  -> template-based JSON extraction
-  -> same combined candidate result format
-  -> benchmark accuracy
+document_manifest.json
+document_evidence.jsonl
+candidate_result.json
+verification_report.json
+summary_report.md
+trace.json
+raw_model_outputs.json
+aggregator_raw_output.json
 ```
 
-Purpose:
+## Milestone 1: Project packaging
 
-- Remove OCR as the first bottleneck.
-- Test whether a VLM can better understand layout-heavy documents such as
-  transcripts, diplomas, certificates, and forms.
-- Compare directly against v0 using the same ground truth and metrics.
+Purpose: make the repository readable as a serious project.
 
-Implementation target:
+Tasks:
 
-- `src/agentic_doc_intel/pipelines/vlm_direct.py`
-- Add a multimodal model client.
-- Add PDF/image rendering utilities.
-- Reuse `templates/` as the extraction schema.
+- rewrite README around the v2 MVP;
+- add architecture documentation;
+- add sanitized example input/output;
+- document what is private and never committed;
+- document model-provider setup.
 
-First runnable command:
+Success condition:
 
-```bash
-python scripts/run_pipeline.py \
-  v1_vlm_direct \
-  /path/to/one-applicant-folder \
-  --output-root evals/results/manual_candidate_outputs_v1_vlm
-```
+> A reader can open GitHub and understand the project in under one minute.
 
-Required model settings:
+## Milestone 2: Small evaluation set
 
-```dotenv
-MODEL_BASE_URL=http://your-vlm-endpoint/v1
-MODEL_API_KEY=replace-me
-MODEL_NAME=your-vlm-model-name
-VLM_MAX_PAGES_PER_FILE=4
-VLM_MAX_TOKENS=4096
-VLM_MIN_PIXELS=
-VLM_MAX_PIXELS=
-```
+Purpose: make improvement measurable without spending too many tokens.
 
-Qwen / Alibaba Cloud Model Studio example:
+Tasks:
 
-```dotenv
-MODEL_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
-MODEL_API_KEY=your-dashscope-api-key
-MODEL_NAME=qwen-vl-max
-MODEL_TIMEOUT_SECONDS=180
-VLM_MAX_PAGES_PER_FILE=4
-VLM_MAX_TOKENS=4096
-```
+- create a small sanitized or local-only eval manifest;
+- run a few representative candidates manually;
+- compare final candidate-level fields;
+- track unknowns, conflicts, and human-review cases;
+- keep private ground truth out of Git.
 
-Start with one applicant folder before running all seven. The first goal is to
-check whether the VLM endpoint accepts PDF-rendered page images and returns
-valid JSON in the same schema as v0.
+Success condition:
 
-### v2: VLM + text verifier/aggregator
+> The project can say which fields improved or regressed after a change.
+
+## Milestone 3: Selective reading experiment
+
+Purpose: reduce cost for long documents.
+
+Compare:
 
 ```text
-Applicant folder
-  -> VLM extracts page/document-level evidence
-  -> text model aggregates all documents for one candidate
-  -> verifier checks missing fields, conflicts, unknown values, and evidence
-  -> final candidate-level result
-  -> benchmark accuracy
-```
-
-Purpose:
-
-- Make the project agentic rather than just one-shot extraction.
-- Handle multi-document consistency:
-  - passport name vs application name
-  - transcript school vs diploma school
-  - English test name vs passport name
-  - missing or conflicting graduation information
-- Improve long-document handling by not throwing hundreds of pages into one
-  prompt without structure.
-
-Implementation target:
-
-- `src/agentic_doc_intel/pipelines/vlm_text_agent.py`
-- Add field-level evidence.
-- Add conflict resolution and verification.
-- Add targeted retry only for failed or uncertain fields.
-
-### v3: Long-document selective reading
-
-```text
-Large document set
-  -> page/document routing
-  -> only relevant pages go to expensive extraction
-  -> VLM/text extraction
-  -> verifier
-  -> final benchmark
-```
-
-Purpose:
-
-- Avoid sending hundreds of pages into one model call.
-- Improve speed and cost.
-- Make the system closer to real production document processing.
-
-## Benchmark rule
-
-Every version must produce the same final output shape:
-
-```text
-#passport
-name:
-passport number:
-
-#transcript
-student name:
-math score:
-english score:
-
-#diploma_certificate
-school name:
-graduation year:
-```
-
-This makes the benchmark fair:
-
-```text
-v0 OCR + text LLM
+full document/pages -> VLM
 vs
-v1 VLM direct extraction
-vs
-v2 VLM + text verifier
+text/page routing -> selected pages -> VLM
 ```
 
-## Resume framing
+Measure:
 
-The goal is not "OCR extraction." The stronger framing is:
+- final field accuracy;
+- number of pages sent to VLM;
+- estimated token/image cost;
+- latency;
+- missed-field rate;
+- conflict rate.
 
-> Built a multi-stage Agentic Document Intelligence system for applicant
-> verification, comparing OCR+LLM, VLM direct extraction, and VLM+LLM
-> verification pipelines under a schema-based end-to-end benchmark.
+Success condition:
+
+> The project can show whether selective reading saves cost without hurting accuracy too much.
+
+## Milestone 4: Backend/API
+
+Purpose: separate product logic from the local Gradio demo.
+
+Planned API shape:
+
+```text
+POST /candidates
+POST /candidates/{id}/files
+POST /candidates/{id}/runs
+GET  /runs/{id}
+GET  /runs/{id}/report
+```
+
+The backend should support two model access modes:
+
+- user-provided external API key;
+- self-hosted/local model endpoint.
+
+Success condition:
+
+> The extraction pipeline can be triggered without the Gradio UI.
+
+## Milestone 5: Frontend
+
+Purpose: turn the MVP into a usable product demo.
+
+Planned UI:
+
+- upload one candidate folder;
+- select model provider;
+- provide API key locally/session-only;
+- show routing decisions;
+- show extracted evidence;
+- show verification report;
+- download final JSON/report.
+
+Success condition:
+
+> A non-technical user can upload files, run extraction, and inspect the report.
+
+## Deferred
+
+Do not prioritize these until the core loop is stable:
+
+- public deployment;
+- authentication;
+- database persistence;
+- multi-user workspace;
+- large-scale benchmark runs;
+- agent memory;
+- complex multi-agent orchestration.

@@ -1,54 +1,71 @@
 # Scripts
 
-Put repeatable command-line workflows here, such as batch extraction, evaluation runs, report generation, and local service launch helpers.
+This folder contains repeatable local workflows for the v2 MVP.
 
-Keep one-off experiments out of this folder unless they become reusable.
+Private candidate documents and generated outputs are intentionally ignored by Git. Use these scripts against local folders only.
 
-## Pipeline runner
-
-Use `run_pipeline.py` as the unified entry point for versioned extraction
-pipelines:
+## Run one candidate
 
 ```bash
-python scripts/run_pipeline.py v0_ocr_text_baseline /path/to/applicant-folder
+python scripts/run_v2_candidate.py "candidate folder name or path"
 ```
 
-Planned future commands:
+The script loads local configuration from `.env` if present.
+
+It writes outputs to:
+
+```text
+output/v2_vlm_text_agent/<candidate_name>/
+```
+
+## Build a token-safe batch plan
 
 ```bash
-python scripts/run_pipeline.py v1_vlm_direct /path/to/applicant-folder
-python scripts/run_pipeline.py v2_vlm_text_agent /path/to/applicant-folder
+python scripts/run_v2_batch.py
 ```
 
-The point is to keep v0, v1, and v2 comparable instead of creating unrelated
-scripts for every experiment.
+Default behavior does **not** call model APIs. It only creates a local batch plan so you can inspect candidate folders, routing decisions, and existing outputs without spending tokens.
 
-For v1 VLM direct extraction, configure a multimodal OpenAI-compatible endpoint
-first:
-
-```dotenv
-MODEL_BASE_URL=http://your-vlm-endpoint/v1
-MODEL_API_KEY=replace-me
-MODEL_NAME=your-vlm-model-name
-VLM_MAX_PAGES_PER_FILE=4
-```
-
-Qwen / Alibaba Cloud Model Studio example:
-
-```dotenv
-MODEL_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
-MODEL_API_KEY=your-dashscope-api-key
-MODEL_NAME=qwen-vl-max
-MODEL_TIMEOUT_SECONDS=180
-VLM_MAX_PAGES_PER_FILE=4
-VLM_MAX_TOKENS=4096
-```
-
-Then run one applicant first:
+To actually run API/model calls:
 
 ```bash
-python scripts/run_pipeline.py \
-  v1_vlm_direct \
-  /path/to/one-applicant-folder \
-  --output-root evals/results/manual_candidate_outputs_v1_vlm
+python scripts/run_v2_batch.py --run
 ```
+
+Use `--run` only when you are ready to spend tokens.
+
+Useful options:
+
+```bash
+python scripts/run_v2_batch.py --candidate Michelle
+python scripts/run_v2_batch.py --max-candidates 2
+python scripts/run_v2_batch.py --run --skip-existing
+python scripts/run_v2_batch.py --run --deterministic-aggregate
+```
+
+## Rebuild a summary report
+
+```bash
+python scripts/build_summary_report.py /path/to/output/v2_vlm_text_agent/<candidate_name>
+```
+
+This is useful after changing verification/report formatting. It does not call model APIs.
+
+## Inspect no-OCR routing decisions
+
+```bash
+python scripts/route_documents_no_ocr.py
+```
+
+This creates a local report showing which files/pages would use PDF text layer, VLM page reading, or human review.
+
+## Private manifests
+
+The manifest-building scripts are for local benchmarking with private files:
+
+```text
+build_private_candidate_manifest.py
+build_private_eval_manifest.py
+```
+
+Their outputs should stay local and should not be committed.
