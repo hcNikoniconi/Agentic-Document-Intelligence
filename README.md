@@ -4,17 +4,36 @@ Agentic Document Intelligence is a candidate-level document understanding system
 
 This repository now focuses on the **v2 MVP**: a VLM + text-model agent workflow. Earlier OCR and direct-VLM experiments are treated as local baselines, not the main product path.
 
+## Highlights
+
+- **Candidate-level processing**: reads all files for one applicant instead of treating every PDF as an isolated document.
+- **Evidence-first extraction**: stores value, source file, page, reader, confidence, and evidence text before producing the final result.
+- **Hybrid reading policy**: uses PDF text layer when cheap and reliable, and VLM page reading when layout/visual information matters.
+- **Auditable verification**: detects hard conflicts, soft conflicts, unsupported fields, weak evidence, identity mismatches, and complementary-source consistency.
+- **Token-safe workflow**: batch planning is dry-run by default and only spends model tokens when `--run` is explicitly passed.
+
 ## What the system does
 
-```text
-Candidate folder
-  -> scan all files
-  -> route each file/page to the right reader
-  -> extract field-level evidence with source and page references
-  -> aggregate evidence into one candidate result
-  -> verify conflicts, missing fields, weak evidence, and source consistency
-  -> generate machine-readable outputs and a human-readable report
+```mermaid
+flowchart TD
+    A["Candidate folder<br/>passport, forms, transcripts, certificates"] --> B["Document manifest<br/>scan files and infer document types"]
+    B --> C["Reading policy<br/>choose reader per file/page"]
+
+    C --> D["PDF text-layer reader<br/>cheap path for text-heavy files"]
+    C --> E["VLM page reader<br/>visual path for tables, stamps, passports"]
+    C --> F["Human review<br/>unsupported or ambiguous cases"]
+
+    D --> G["Field-level evidence<br/>value + source file + page + quote"]
+    E --> G
+    F --> G
+
+    G --> H["Text-model aggregator<br/>merge evidence across documents"]
+    H --> I["Candidate result<br/>schema-aligned structured output"]
+    I --> J["Verification policy<br/>missing fields, conflicts, weak evidence,<br/>certificate identity, source consistency"]
+    J --> K["Report artifacts<br/>JSON, JSONL, trace, Markdown summary"]
 ```
+
+The core output is not just a final JSON. The system keeps evidence and verification artifacts so errors can be traced back to a specific file, page, field, or source-consistency check.
 
 The project is designed around a practical problem: real application packets contain passports, application forms, transcripts, certificates, recommendation letters, personal statements, and miscellaneous PDFs. A single one-shot prompt is fragile, expensive, and hard to debug. This system keeps intermediate evidence and verification traces so failures can be located and improved.
 
